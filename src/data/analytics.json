@@ -1,0 +1,402 @@
+[
+  {
+    "date": "2026-03-05T15:31:43.121Z",
+    "passed": 3,
+    "failed": 1,
+    "duration": 61392.886000000006,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-05T15:40:58.442Z",
+    "passed": 3,
+    "failed": 1,
+    "duration": 62460.547,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-06T04:13:53.864Z",
+    "passed": 3,
+    "failed": 1,
+    "duration": 85911.83499999999,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-06T04:52:27.272Z",
+    "passed": 3,
+    "failed": 1,
+    "duration": 57859.909,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-06T06:17:09.165Z",
+    "passed": 3,
+    "failed": 1,
+    "duration": 68477.719,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-06T06:43:01.587Z",
+    "passed": 0,
+    "failed": 1,
+    "duration": 34580.07,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-06T06:59:10.957Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 134735.096,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-09T01:51:24.198Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 131977.179,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-09T03:57:45.384Z",
+    "passed": 3,
+    "failed": 1,
+    "duration": 76445.325,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-09T04:13:06.517Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 78509.356,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-09T05:10:34.532Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 56648.22,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-09T06:19:51.285Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 52428.118,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-11T06:02:14.080Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 55256.18,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-16T09:21:39.772Z",
+    "passed": 3,
+    "failed": 1,
+    "duration": 44238.738000000005,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-16T09:48:06.942Z",
+    "passed": 3,
+    "failed": 1,
+    "duration": 38781.104,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-16T09:53:51.426Z",
+    "passed": 3,
+    "failed": 1,
+    "duration": 41519.653,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-16T10:41:33.069Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 51449.995,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-17T06:15:41.764Z",
+    "passed": 2,
+    "failed": 1,
+    "duration": 94791.38100000001,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-17T06:17:30.889Z",
+    "passed": 2,
+    "failed": 1,
+    "duration": 92384.2,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-17T07:50:31.877Z",
+    "passed": 2,
+    "failed": 1,
+    "duration": 72047.162,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-17T07:58:58.754Z",
+    "passed": 3,
+    "failed": 1,
+    "duration": 65096.799999999996,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-17T08:05:20.555Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 57834.022,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-18T02:05:10.309Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 67005.803,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-18T07:31:05.287Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 56878.24,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-18T10:33:15.715Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 52317.87,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-19T02:08:39.684Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 58039.415,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-19T08:18:18.532Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 58378.693,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-20T05:38:40.255Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 53173.829,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-20T08:49:55.548Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 51854.324,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-23T04:06:59.864Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 50339.173,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-23T05:34:02.848Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 67878.12599999999,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-23T09:11:21.589Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 51570.382999999994,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-24T01:54:09.801Z",
+    "passed": 3,
+    "failed": 1,
+    "duration": 43951.664,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-24T02:17:39.102Z",
+    "passed": 3,
+    "failed": 1,
+    "duration": 120571.569,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-24T02:23:36.591Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 72514.454,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-24T08:04:33.468Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 53992.319,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-24T14:15:13.371Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 62756.102,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-25T14:46:42.379Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 53542.778999999995,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-25T15:06:22.774Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 55079.343,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-25T15:32:19.230Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 54942.528999999995,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-25T15:33:26.192Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 57187.907999999996,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-25T16:18:52.140Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 59011.868,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-25T16:19:59.243Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 62292.604,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-25T16:31:47.978Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 75039.505,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-25T16:33:32.011Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 65259.78200000001,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-25T17:48:30.024Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 77207.816,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-25T19:25:45.580Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 75504.121,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-26T01:53:25.052Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 75436.12,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-26T02:47:37.237Z",
+    "passed": 3,
+    "failed": 1,
+    "duration": 45586.5,
+    "botCount": 1,
+    "total": 5
+  },
+  {
+    "date": "2026-03-26T07:36:42.410Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 59970.294,
+    "botCount": 1,
+    "total": 5
+  }
+]

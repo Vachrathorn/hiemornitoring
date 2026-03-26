@@ -1,0 +1,395 @@
+{
+  "slowApis": [
+    {
+      "url": "/api/consent/out/doctor/request/by-case",
+      "duration": 5100,
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "url": "/api/patient/fhir-data-pulling/trigger",
+      "duration": 3596,
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "url": "/api/fhir",
+      "duration": 3437,
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "url": "/api/fhir",
+      "duration": 2252,
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "url": "/api/fhir",
+      "duration": 2201,
+      "method": "POST",
+      "status": 200
+    }
+  ],
+  "longestSteps": [
+    {
+      "stepId": "S3_001",
+      "action": "Wait for Patient Data Sync",
+      "duration": 19550
+    },
+    {
+      "stepId": "S1_001",
+      "action": "Login as OTHERS",
+      "duration": 6223
+    },
+    {
+      "stepId": "S4_001",
+      "action": "Request Consent & Confirm Modal",
+      "duration": 6068
+    },
+    {
+      "stepId": "S4_002",
+      "action": "Gmail API: Poll for Consent Email",
+      "duration": 4686
+    },
+    {
+      "stepId": "S1_000",
+      "action": "Pre-flight: Site Health Check",
+      "duration": 3685
+    }
+  ],
+  "stabilityScore": {
+    "passed": 5,
+    "warned": 5,
+    "failed": 0,
+    "grade": "B"
+  },
+  "webVitals": {
+    "ttfb": 258,
+    "lcp": 4068,
+    "capturedAt": "2026-03-26T07:37:40.080Z",
+    "url": "https://staging-legacy.healthlink.go.th/console/patient/overview"
+  },
+  "tcDetails": [
+    {
+      "id": "TC-01",
+      "name": "Login & Auth",
+      "status": "PASS"
+    },
+    {
+      "id": "TC-02",
+      "name": "Hospital & Patient Search",
+      "status": "PASS"
+    },
+    {
+      "id": "TC-03",
+      "name": "Data Sync & SLA",
+      "status": "PASS"
+    },
+    {
+      "id": "TC-04",
+      "name": "Consent Flow",
+      "status": "PASS"
+    },
+    {
+      "id": "TC-05",
+      "name": "System Health Report",
+      "status": "PASS"
+    }
+  ],
+  "consoleErrors": [
+    {
+      "message": "Failed to load resource: the server responded with a status of 403 ()",
+      "timestamp": "2026-03-26T07:36:50.548Z",
+      "url": "https://staging-legacy.healthlink.go.th/page/login"
+    }
+  ],
+  "networkFailures": [],
+  "totalApiCalls": 50,
+  "uniqueEndpoints": 19,
+  "slowApiCount": 5,
+  "avgApiTime": 905,
+  "p50ApiTime": 534,
+  "p95ApiTime": 3596,
+  "p99ApiTime": 5100,
+  "traceFilePath": "C:\\Users\\usEr\\OneDrive\\Desktop\\Automation HIE System\\output\\evidence\\perf-trace.zip",
+  "runId": "run-1774510660598-hxiw6v",
+  "timestamp": "2026-03-26T07:37:40.598Z",
+  "totalDurationMs": 53335,
+  "criticalEndpoints": [
+    {
+      "label": "Auth Login",
+      "pattern": "/api/auth",
+      "method": "POST",
+      "level": "critical",
+      "relatedTC": "TC-01",
+      "called": true,
+      "httpStatus": 200,
+      "responseMs": 436,
+      "ok": true
+    },
+    {
+      "label": "Patient Search",
+      "pattern": "/api/patient/doctor-search",
+      "method": "POST",
+      "level": "critical",
+      "relatedTC": "TC-02",
+      "called": true,
+      "httpStatus": 200,
+      "responseMs": 110,
+      "ok": true
+    },
+    {
+      "label": "FHIR Data Sync",
+      "pattern": "/api/fhir",
+      "method": "POST",
+      "level": "critical",
+      "relatedTC": "TC-03",
+      "called": true,
+      "httpStatus": 200,
+      "responseMs": 3437,
+      "ok": true
+    },
+    {
+      "label": "User Profile",
+      "pattern": "/api/user/user-info",
+      "method": "GET",
+      "level": "important",
+      "relatedTC": "TC-01",
+      "called": true,
+      "httpStatus": 200,
+      "responseMs": 129,
+      "ok": true
+    }
+  ],
+  "metadata": {
+    "environment": "uat",
+    "platform": "hie",
+    "reportVersion": "5.0",
+    "thresholds": {
+      "slowApiMs": 1500,
+      "traceTriggerMs": 3000,
+      "ttfbGoodMs": 800,
+      "ttfbPoorMs": 1800,
+      "lcpGoodMs": 2500,
+      "lcpPoorMs": 4000
+    }
+  },
+  "allStepTimings": [
+    {
+      "stepId": "S3_001",
+      "action": "Wait for Patient Data Sync",
+      "duration": 19550
+    },
+    {
+      "stepId": "S1_001",
+      "action": "Login as OTHERS",
+      "duration": 6223
+    },
+    {
+      "stepId": "S4_001",
+      "action": "Request Consent & Confirm Modal",
+      "duration": 6068
+    },
+    {
+      "stepId": "S4_002",
+      "action": "Gmail API: Poll for Consent Email",
+      "duration": 4686
+    },
+    {
+      "stepId": "S1_000",
+      "action": "Pre-flight: Site Health Check",
+      "duration": 3685
+    },
+    {
+      "stepId": "S5_001",
+      "action": "Generate System Health Report",
+      "duration": 3112
+    },
+    {
+      "stepId": "S4_004",
+      "action": "Click Check Consent Button",
+      "duration": 2728
+    },
+    {
+      "stepId": "S4_003",
+      "action": "Open Consent Link in New Tab",
+      "duration": 2557
+    },
+    {
+      "stepId": "S2_002",
+      "action": "Search Patient by CID",
+      "duration": 2104
+    },
+    {
+      "stepId": "S2_001",
+      "action": "Select Working Hospital",
+      "duration": 1363
+    },
+    {
+      "stepId": "S1_002",
+      "action": "Verify login success",
+      "duration": 421
+    },
+    {
+      "stepId": "S4_005",
+      "action": "Verify Consent Result",
+      "duration": 259
+    },
+    {
+      "stepId": "S3_002",
+      "action": "SLA Check: sync < 60s",
+      "duration": 1
+    },
+    {
+      "stepId": "S3_003",
+      "action": "Verify sync data completeness",
+      "duration": 0
+    },
+    {
+      "stepId": "S5_002",
+      "action": "Performance Grading",
+      "duration": 0
+    },
+    {
+      "stepId": "S5_003",
+      "action": "Determine Overall Status",
+      "duration": 0
+    }
+  ],
+  "endpointBreakdown": [
+    {
+      "endpoint": "POST /api/consent/out/doctor/request/by-case",
+      "callCount": 1,
+      "avgDuration": 5100,
+      "maxDuration": 5100,
+      "slowCount": 1
+    },
+    {
+      "endpoint": "POST /api/patient/fhir-data-pulling/trigger",
+      "callCount": 1,
+      "avgDuration": 3596,
+      "maxDuration": 3596,
+      "slowCount": 1
+    },
+    {
+      "endpoint": "POST /api/fhir",
+      "callCount": 4,
+      "avgDuration": 2124,
+      "maxDuration": 3437,
+      "slowCount": 3
+    },
+    {
+      "endpoint": "GET /api/patient/consent-out/channel?patient_id=779269",
+      "callCount": 1,
+      "avgDuration": 1298,
+      "maxDuration": 1298,
+      "slowCount": 0
+    },
+    {
+      "endpoint": "POST /api/patient/fhir-info/mdps",
+      "callCount": 3,
+      "avgDuration": 809,
+      "maxDuration": 1241,
+      "slowCount": 0
+    },
+    {
+      "endpoint": "GET /api/patient/fhir-data-pulling/status/server/4610c800-d135-48c8-af76-3e25cac0...",
+      "callCount": 4,
+      "avgDuration": 650,
+      "maxDuration": 899,
+      "slowCount": 0
+    },
+    {
+      "endpoint": "GET /api/patient/fhir-data-pulling/status/server/36369eac-c2ec-46f0-be32-a9490831...",
+      "callCount": 4,
+      "avgDuration": 679,
+      "maxDuration": 898,
+      "slowCount": 0
+    },
+    {
+      "endpoint": "POST /api/hospital/hos-resource-status/get",
+      "callCount": 1,
+      "avgDuration": 615,
+      "maxDuration": 615,
+      "slowCount": 0
+    },
+    {
+      "endpoint": "POST /api/consent/out/summary/get",
+      "callCount": 4,
+      "avgDuration": 406,
+      "maxDuration": 543,
+      "slowCount": 0
+    },
+    {
+      "endpoint": "POST /api/patient/demographic",
+      "callCount": 1,
+      "avgDuration": 538,
+      "maxDuration": 538,
+      "slowCount": 0
+    },
+    {
+      "endpoint": "GET /api/logging/queried-patient-list/by-doctor?page=1&size=5",
+      "callCount": 1,
+      "avgDuration": 519,
+      "maxDuration": 519,
+      "slowCount": 0
+    },
+    {
+      "endpoint": "GET /api/referral/mdp/status",
+      "callCount": 1,
+      "avgDuration": 485,
+      "maxDuration": 485,
+      "slowCount": 0
+    },
+    {
+      "endpoint": "POST /api/auth/login/with-form-data",
+      "callCount": 1,
+      "avgDuration": 436,
+      "maxDuration": 436,
+      "slowCount": 0
+    },
+    {
+      "endpoint": "GET /api/patient/client-mgmt-ws-token/get",
+      "callCount": 1,
+      "avgDuration": 424,
+      "maxDuration": 424,
+      "slowCount": 0
+    },
+    {
+      "endpoint": "GET /api/user/user-info",
+      "callCount": 2,
+      "avgDuration": 122,
+      "maxDuration": 129,
+      "slowCount": 0
+    },
+    {
+      "endpoint": "POST /api/auth/refresh-token",
+      "callCount": 2,
+      "avgDuration": 110,
+      "maxDuration": 128,
+      "slowCount": 0
+    },
+    {
+      "endpoint": "POST /api/auth/activate/mdp?mdp_id=163",
+      "callCount": 1,
+      "avgDuration": 119,
+      "maxDuration": 119,
+      "slowCount": 0
+    },
+    {
+      "endpoint": "POST /api/patient/doctor-search",
+      "callCount": 1,
+      "avgDuration": 110,
+      "maxDuration": 110,
+      "slowCount": 0
+    },
+    {
+      "endpoint": "GET /api/consent-form/terms-and-conditions",
+      "callCount": 1,
+      "avgDuration": 97,
+      "maxDuration": 97,
+      "slowCount": 0
+    }
+  ]
+}

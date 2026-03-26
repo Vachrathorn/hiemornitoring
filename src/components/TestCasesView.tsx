@@ -14,10 +14,9 @@ import {
   Network,
   Activity,
   Clock,
-  XCircle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { latestRun, tcDetails } from '@/lib/mock-data';
+import { perfSummary, getTcDetails, toThaiTime, getOverallStatus } from '@/lib/data-loader';
 
 const iconMap: Record<string, typeof Key> = { Key, Database, Lock, Network, Activity };
 
@@ -29,13 +28,22 @@ const iconColorMap: Record<string, string> = {
   Activity: 'bg-blue-50 text-blue-600',
 };
 
-const passRate = latestRun.tc_total > 0
-  ? ((latestRun.tc_passed / latestRun.tc_total) * 100).toFixed(1)
+const stab = perfSummary.stabilityScore;
+const tcCount = perfSummary.tcDetails.length;
+const totalDurationS = perfSummary.totalDurationMs / 1000;
+
+const passRate = tcCount > 0
+  ? ((stab.passed / tcCount) * 100).toFixed(1)
   : '0';
 
-const avgExecTime = latestRun.tc_total > 0
-  ? (latestRun.total_duration_s / latestRun.tc_total).toFixed(1)
+const avgExecTime = tcCount > 0
+  ? (totalDurationS / tcCount).toFixed(1)
   : '0';
+
+const env = perfSummary.metadata.environment;
+const siteUrl = perfSummary.webVitals?.url?.replace(/\/console.*/, '') || '';
+const lastRunTime = toThaiTime(perfSummary.timestamp);
+const tcDetailsData = getTcDetails();
 
 export function TestCasesView() {
   return (
@@ -49,13 +57,13 @@ export function TestCasesView() {
               <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500" />
             </span>
             <span className="text-xs font-black tracking-widest uppercase text-emerald-600">
-              {latestRun.environment.toUpperCase()} Environment
+              {env.toUpperCase()} Environment
             </span>
           </div>
           <h3 className="text-4xl font-black tracking-tight">Test Case Results</h3>
           <p className="text-slate-500 font-medium mt-2 flex items-center">
             <Network className="w-4 h-4 mr-2" />
-            {latestRun.base_url}
+            {siteUrl}
           </p>
         </div>
         <button className="px-6 py-3 bg-primary text-on-primary rounded-xl font-bold text-sm shadow-xl shadow-emerald-900/10 hover:translate-y-[-2px] transition-all flex items-center">
@@ -66,9 +74,9 @@ export function TestCasesView() {
 
       {/* Stats Grid */}
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        <SummaryCard label="Total Tests" value={String(latestRun.tc_total)} trend="" progress={100} />
-        <SummaryCard label="Passed" value={String(latestRun.tc_passed)} trend={`${passRate}%`} progress={Number(passRate)} color="emerald" />
-        <SummaryCard label="Failed" value={String(latestRun.tc_failed)} trend={`${(100 - Number(passRate)).toFixed(1)}%`} progress={100 - Number(passRate)} color="rose" />
+        <SummaryCard label="Total Tests" value={String(tcCount)} trend="" progress={100} />
+        <SummaryCard label="Passed" value={String(stab.passed)} trend={`${passRate}%`} progress={Number(passRate)} color="emerald" />
+        <SummaryCard label="Failed" value={String(stab.failed)} trend={`${(100 - Number(passRate)).toFixed(1)}%`} progress={100 - Number(passRate)} color="rose" />
         <SummaryCard label="Avg Exec Time" value={avgExecTime} unit="s" progress={Math.min((Number(avgExecTime) / 30) * 100, 100)} color="emerald" />
       </section>
 
@@ -102,7 +110,7 @@ export function TestCasesView() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {tcDetails.map((tc) => {
+              {tcDetailsData.map((tc) => {
                 const Icon = iconMap[tc.icon] || Activity;
                 const iconColor = iconColorMap[tc.icon] || 'bg-slate-100 text-slate-600';
                 return (
@@ -130,7 +138,7 @@ export function TestCasesView() {
                         {tc.status === 'PASS' ? 'PASSED' : tc.status === 'FAIL' ? 'FAILED' : tc.status}
                       </span>
                     </td>
-                    <td className="py-6 text-sm font-medium text-slate-500">{latestRun.environment.toUpperCase()}</td>
+                    <td className="py-6 text-sm font-medium text-slate-500">{env.toUpperCase()}</td>
                     <td className="py-6">
                       <div className="flex items-center">
                         <span className="text-sm font-bold text-slate-900">{tc.duration_s}s</span>
@@ -143,7 +151,7 @@ export function TestCasesView() {
                       </div>
                     </td>
                     <td className="py-6 text-sm font-medium text-slate-500">
-                      {latestRun.timestamp.replace('T', ' ').slice(0, 16)}
+                      {lastRunTime.slice(0, 16)}
                     </td>
                     <td className="py-6 text-right">
                       <button className="text-slate-400 hover:text-slate-900 transition-colors">
@@ -178,7 +186,7 @@ export function TestCasesView() {
             </div>
             <div>
               <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Last Successful Run</p>
-              <p className="text-xl font-black text-slate-900">{latestRun.timestamp.replace('T', ' ').slice(11, 16)}</p>
+              <p className="text-xl font-black text-slate-900">{lastRunTime.slice(11, 16)}</p>
             </div>
           </div>
           <div className="p-6 bg-primary text-on-primary rounded-xl flex items-center space-x-4 shadow-lg shadow-emerald-900/10">
@@ -195,8 +203,8 @@ export function TestCasesView() {
               <Activity className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Runs Today</p>
-              <p className="text-xl font-black text-slate-900">{latestRun.slot === 'morning' ? '1' : latestRun.slot === 'afternoon' ? '2' : '3'} / 3</p>
+              <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Platform</p>
+              <p className="text-xl font-black text-slate-900">{perfSummary.metadata.platform} / {env}</p>
             </div>
           </div>
         </div>
