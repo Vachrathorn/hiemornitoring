@@ -25,19 +25,15 @@ import {
   ReferenceLine,
 } from 'recharts';
 import {
-  perfSummary, analytics, getCriticalChecks,
+  perfSummary, getCriticalChecks,
   getAvailabilityPercent, getEfficiencyScore, toThaiTime, getOverallStatus,
+  getTrendData, slowThresholdS, type TrendEntry,
 } from '@/lib/data-loader';
 
 const TARGET_DURATION = 60; // seconds
 
-// Build trend data from analytics.json (real historical runs)
-const trendData = analytics
-  .slice(-15) // last 15 runs
-  .map((run) => ({
-    name: new Date(run.date).toISOString().slice(5, 10), // MM-DD
-    value: Math.round(run.duration / 1000), // ms → seconds
-  }));
+// Build trend data with status + tooltip
+const trendData = getTrendData(15);
 
 const availability = getAvailabilityPercent();
 const efficiencyScore = getEfficiencyScore();
@@ -62,7 +58,7 @@ const ttfbGrade = ttfb <= thresholds.ttfbGoodMs ? 'Good' : ttfb <= thresholds.tt
 const lcpGrade = lcp <= thresholds.lcpGoodMs ? 'Good' : lcp <= thresholds.lcpPoorMs ? 'Needs Improvement' : 'Poor';
 const gradeColor = (g: string) => g === 'Good' ? 'text-emerald-600 bg-emerald-50' : g === 'Needs Improvement' ? 'text-amber-600 bg-amber-50' : 'text-rose-600 bg-rose-50';
 
-// Dynamic status styling
+// Dynamic status styling (ปกติ = pass + not slow, ช้ากว่าปกติ = pass + slow, ผิดปกติ = has fail)
 const statusConfig = (() => {
   switch (overallStatus) {
     case 'ปกติ':
@@ -70,7 +66,6 @@ const statusConfig = (() => {
     case 'ช้ากว่าปกติ':
       return { icon: AlertTriangle, color: 'text-amber-500', bg: 'bg-amber-50', fill: '' };
     case 'ผิดปกติ':
-    case 'มีปัญหา':
     default:
       return { icon: XCircle, color: 'text-rose-500', bg: 'bg-rose-50', fill: '' };
   }
@@ -147,9 +142,10 @@ export function OverviewView() {
                 Overall Execution Speed (s) — History Analysis
               </p>
             </div>
-            <div className="flex gap-6">
-              <LegendItem color="bg-primary" label={`Target (${TARGET_DURATION}s)`} />
-              <LegendItem color="bg-emerald-400" label="Actual" />
+            <div className="flex flex-wrap gap-4">
+              <LegendItem color="bg-emerald-500" label="ปกติ" />
+              <LegendItem color="bg-amber-400" label="ช้า" />
+              <LegendItem color="bg-rose-500" label="ไม่ผ่าน" />
             </div>
           </div>
 
@@ -160,17 +156,19 @@ export function OverviewView() {
                 <YAxis hide domain={[0, Math.ceil(Math.max(...durations, TARGET_DURATION) * 1.2)]} />
                 <Tooltip
                   cursor={{ fill: 'transparent' }}
-                  formatter={(value: number) => [`${value}s`, 'Duration']}
-                  labelFormatter={(label) => `Date: ${label}`}
+                  content={<CustomTooltip />}
                 />
-                <ReferenceLine y={TARGET_DURATION} stroke="#006c49" strokeDasharray="6 4" strokeWidth={2} />
+                <ReferenceLine y={slowThresholdS} stroke="#f59e0b" strokeDasharray="4 4" strokeWidth={1.5} label={{ value: `Slow (${slowThresholdS}s)`, position: 'right', fontSize: 10, fontWeight: 700, fill: '#f59e0b' }} />
+                <ReferenceLine y={TARGET_DURATION} stroke="#006c49" strokeDasharray="6 4" strokeWidth={2} label={{ value: `Target (${TARGET_DURATION}s)`, position: 'right', fontSize: 10, fontWeight: 700, fill: '#006c49' }} />
                 <Bar dataKey="value" radius={[12, 12, 0, 0]}>
-                  {trendData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={entry.value > TARGET_DURATION ? '#f43f5e' : '#10b981'}
-                    />
-                  ))}
+                  {trendData.map((entry, index) => {
+                    const fillColor = entry.status === 'failed' ? '#f43f5e'
+                      : entry.status === 'slow' ? '#f59e0b'
+                      : '#10b981';
+                    return (
+                      <Cell key={`cell-${index}`} fill={fillColor} />
+                    );
+                  })}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
@@ -267,6 +265,22 @@ function MetricBox({ label, value, isError }: { label: string; value: string; is
     <div className="text-center p-4 bg-white/50 rounded-xl">
       <p className="text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-widest">{label}</p>
       <p className={cn('text-3xl font-black', isError ? 'text-error' : 'text-on-surface')}>{value}</p>
+    </div>
+  );
+}
+
+function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ payload: TrendEntry }>; label?: string }) {
+  if (!active || !payload || !payload.length) return null;
+  const data = payload[0].payload;
+  const borderColor = data.status === 'failed' ? 'border-rose-400'
+    : data.status === 'slow' ? 'border-amber-400'
+    : 'border-emerald-400';
+
+  return (
+    <div className={cn('bg-white rounded-xl shadow-lg p-4 border-l-4 min-w-[180px]', borderColor)}>
+      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Date: {label}</p>
+      <p className="text-lg font-black">{data.value}s</p>
+      <p className="text-xs font-bold mt-2 leading-relaxed">{data.tooltip}</p>
     </div>
   );
 }

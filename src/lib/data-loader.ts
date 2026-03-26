@@ -206,11 +206,93 @@ export function toThaiTime(isoStr: string): string {
   return d.toISOString().replace('T', ' ').slice(0, 19);
 }
 
-/** Overall status in Thai */
+// ============================================================
+// Duration threshold: avg + 1.5×SD → "ช้า"
+// ============================================================
+
+function calcDurationStats() {
+  const durations = analytics.map(r => r.duration); // ms
+  const n = durations.length;
+  if (n === 0) return { avg: 0, sd: 0, threshold: 0 };
+  const avg = durations.reduce((a, b) => a + b, 0) / n;
+  const variance = durations.reduce((sum, d) => sum + (d - avg) ** 2, 0) / n;
+  const sd = Math.sqrt(variance);
+  return { avg, sd, threshold: avg + 1.5 * sd };
+}
+
+const durationStats = calcDurationStats();
+
+/** Threshold in seconds for "slow" classification */
+export const slowThresholdS = Math.round(durationStats.threshold / 1000);
+
+/** Check if a duration (ms) is considered "slow" */
+export function isSlow(durationMs: number): boolean {
+  return durationMs > durationStats.threshold;
+}
+
+/** Run status for each analytics entry — used for chart color + tooltip */
+export type RunStatus = 'normal' | 'slow' | 'failed';
+
+export interface TrendEntry {
+  name: string;          // MM-DD
+  value: number;         // seconds
+  status: RunStatus;
+  passed: number;
+  failed: number;
+  total: number;
+  tooltip: string;       // short reason
+}
+
+/** Build trend data with status + tooltip for chart */
+export function getTrendData(count = 15): TrendEntry[] {
+  const latestRunDate = perfSummary.timestamp.slice(0, 10);
+
+  return analytics.slice(-count).map((run) => {
+    const durationS = Math.round(run.duration / 1000);
+    const hasFail = run.failed > 0;
+    const runIsSlow = isSlow(run.duration);
+    const isLatest = run.date.slice(0, 10) === latestRunDate;
+
+    let status: RunStatus = 'normal';
+    let tooltip = `${durationS}s — ผ่าน ${run.passed}/${run.total}`;
+
+    if (hasFail) {
+      status = 'failed';
+      tooltip = `❌ ไม่ผ่าน ${run.failed}/${run.total} TC`;
+      // Latest run: add detail from perf-summary
+      if (isLatest) {
+        const failedTCs = perfSummary.tcDetails
+          .filter(tc => tc.status === 'FAIL')
+          .map(tc => tc.id)
+          .join(', ');
+        if (failedTCs) tooltip += ` (${failedTCs})`;
+      }
+    } else if (runIsSlow) {
+      status = 'slow';
+      tooltip = `⚠️ API SLOW (${durationS}s)`;
+      // Latest run: add slowest step
+      if (isLatest && perfSummary.longestSteps.length > 0) {
+        const top = perfSummary.longestSteps[0];
+        tooltip += ` — ${top.action} ${(top.duration / 1000).toFixed(1)}s`;
+      }
+    }
+
+    return {
+      name: new Date(run.date).toISOString().slice(5, 10),
+      value: durationS,
+      status,
+      passed: run.passed,
+      failed: run.failed,
+      total: run.total,
+      tooltip,
+    };
+  });
+}
+
+/** Overall status in Thai — based on fail + duration */
 export function getOverallStatus(): string {
-  const { passed, failed, grade } = perfSummary.stabilityScore;
+  const { failed } = perfSummary.stabilityScore;
   if (failed > 0) return 'ผิดปกติ';
-  if (grade === 'A') return 'ปกติ';
-  if (grade === 'B') return 'ช้ากว่าปกติ';
-  return 'มีปัญหา';
+  if (isSlow(perfSummary.totalDurationMs)) return 'ช้ากว่าปกติ';
+  return 'ปกติ';
 }
