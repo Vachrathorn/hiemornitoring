@@ -194,7 +194,7 @@ export function OverviewView() {
           <div className="bg-surface-container-low rounded-xl p-8 space-y-6 flex-1 border border-slate-200/50">
             <div className="mb-6">
               <h3 className="text-lg font-black tracking-tight uppercase">API Health</h3>
-              <p className="text-[10px] text-on-surface-variant/60 font-medium mt-1">ตรวจสอบ API หลักของระบบว่าตอบกลับปกติ</p>
+              <p className="text-[10px] text-on-surface-variant/60 font-medium mt-1">ตรวจสอบ API หลักว่าตอบกลับปกติ (รอบล่าสุด)</p>
             </div>
             <div className="space-y-2">
               {criticalChecks.map((check, i) => (
@@ -207,7 +207,7 @@ export function OverviewView() {
             <div className="bg-surface-container-low rounded-xl p-6 border border-slate-200/50 space-y-4">
               <div>
                 <h3 className="text-xs font-black tracking-widest uppercase text-on-surface-variant">Web Vitals</h3>
-                <p className="text-[10px] text-on-surface-variant/60 font-medium mt-1">ความเร็วในการโหลดหน้าเว็บ</p>
+                <p className="text-[10px] text-on-surface-variant/60 font-medium mt-1">ความเร็วโหลดหน้าเว็บ (รอบล่าสุด)</p>
               </div>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
