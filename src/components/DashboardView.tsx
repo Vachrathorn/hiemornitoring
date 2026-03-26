@@ -5,8 +5,6 @@ import {
   Download,
   Filter,
   ArrowUpRight,
-  ArrowDownRight,
-  Minus,
 } from 'lucide-react';
 import {
   BarChart,
@@ -15,24 +13,37 @@ import {
   Tooltip,
   Cell,
 } from 'recharts';
-import { latestRun, historicalRuns, endpointDetails, getTrendPercent } from '@/lib/mock-data';
+import {
+  perfSummary, analytics, getEndpointDetails, getAvailabilityPercent, getOverallStatus,
+} from '@/lib/data-loader';
 
-const prevRun = historicalRuns[historicalRuns.length - 2];
+const stab = perfSummary.stabilityScore;
+const tcCount = perfSummary.tcDetails.length;
+const totalApiCalls = perfSummary.totalApiCalls;
+const overallStatus = getOverallStatus();
+const endpointDetailsData = getEndpointDetails();
 
-// Simulated throughput data based on total_api_calls
-const throughputData = Array.from({ length: 20 }, (_, i) => ({
+// Previous run for trend comparison
+const prevRun = analytics.length >= 2 ? analytics[analytics.length - 2] : null;
+const trendPct = prevRun && prevRun.total > 0
+  ? `${((totalApiCalls - (prevRun.total || 0)) / (prevRun.total || 1) * 100).toFixed(1)}%`
+  : 'N/A';
+
+// Throughput data from endpoint breakdown
+const throughputData = perfSummary.endpointBreakdown.map((ep, i) => ({
   name: i,
-  value: Math.floor(Math.random() * 30) + (latestRun.total_api_calls / 20),
-  isPeak: i === 5 || i === 15,
+  value: ep.callCount,
+  isPeak: ep.slowCount > 0,
 }));
 
-// Compute availability from historical
-const normalRuns = historicalRuns.filter(r => r.overall_status === 'ปกติ').length;
-const availabilityPct = ((normalRuns / historicalRuns.length) * 100).toFixed(1);
+const availabilityPct = getAvailabilityPercent().toFixed(1);
 
-// Error rate approximation
-const errorRate = latestRun.tc_total > 0
-  ? ((latestRun.tc_failed / latestRun.tc_total) * 100).toFixed(2)
+// Max API time from endpoint breakdown (for progress bars)
+const maxApiMs = Math.max(...perfSummary.endpointBreakdown.map(e => e.maxDuration), 1);
+
+// Error rate
+const errorRate = tcCount > 0
+  ? ((stab.failed / tcCount) * 100).toFixed(2)
   : '0.00';
 
 export function DashboardView() {
@@ -48,17 +59,17 @@ export function DashboardView() {
             </div>
             <h2 className="text-7xl md:text-[5rem] font-black leading-none tracking-tighter">{availabilityPct}%</h2>
             <p className="text-lg font-medium opacity-90 max-w-md">
-              Global API Health is {latestRun.overall_status === 'ปกติ' ? 'optimal' : 'degraded'}.
-              System processed {latestRun.total_api_calls} API calls in the latest run.
+              Global API Health is {overallStatus === 'ปกติ' ? 'optimal' : 'degraded'}.
+              System processed {totalApiCalls} API calls in the latest run.
             </p>
           </div>
 
           <div className="bg-white/10 backdrop-blur-md rounded-lg p-6 flex flex-col gap-1 min-w-[240px]">
             <span className="text-xs font-bold uppercase tracking-widest opacity-70">Total API Calls (Latest)</span>
-            <span className="text-3xl font-black tracking-tight">{latestRun.total_api_calls.toLocaleString()}</span>
+            <span className="text-3xl font-black tracking-tight">{totalApiCalls.toLocaleString()}</span>
             <div className="flex items-center gap-2 text-emerald-300 text-sm font-bold mt-2">
               <TrendingUp className="w-4 h-4" />
-              {getTrendPercent(latestRun.total_api_calls, prevRun?.total_api_calls || 0)} vs Previous
+              {trendPct} vs Previous
             </div>
           </div>
         </div>
@@ -78,9 +89,9 @@ export function DashboardView() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <LatencyCard label="P50 (Median)" value={Math.round(latestRun.p50_api_s * 1000)} color="emerald" progress={Math.min((latestRun.p50_api_s / latestRun.max_api_s) * 100, 100)} />
-            <LatencyCard label="P95" value={Math.round(latestRun.p95_api_s * 1000)} color="amber" progress={Math.min((latestRun.p95_api_s / latestRun.max_api_s) * 100, 100)} />
-            <LatencyCard label="P99 (Critical)" value={Math.round(latestRun.p99_api_s * 1000)} color="rose" progress={Math.min((latestRun.p99_api_s / latestRun.max_api_s) * 100, 100)} />
+            <LatencyCard label="P50 (Median)" value={Math.round(perfSummary.p50ApiTime)} color="emerald" progress={Math.min((perfSummary.p50ApiTime / maxApiMs) * 100, 100)} />
+            <LatencyCard label="P95" value={Math.round(perfSummary.p95ApiTime)} color="amber" progress={Math.min((perfSummary.p95ApiTime / maxApiMs) * 100, 100)} />
+            <LatencyCard label="P99 (Critical)" value={Math.round(perfSummary.p99ApiTime)} color="rose" progress={Math.min((perfSummary.p99ApiTime / maxApiMs) * 100, 100)} />
           </div>
 
           <div className="space-y-4 pt-4">
@@ -111,7 +122,7 @@ export function DashboardView() {
               <div className="relative w-40 h-40 rounded-full border-[12px] border-slate-100 flex items-center justify-center">
                 <div
                   className="absolute inset-0 rounded-full border-[12px] border-primary border-t-transparent border-l-transparent"
-                  style={{ transform: `rotate(${(latestRun.tc_passed / latestRun.tc_total) * 360}deg)` }}
+                  style={{ transform: `rotate(${tcCount > 0 ? (stab.passed / tcCount) * 360 : 0}deg)` }}
                 />
                 <div className="text-center">
                   <span className="block text-3xl font-black">{errorRate}%</span>
@@ -121,9 +132,9 @@ export function DashboardView() {
             </div>
 
             <div className="space-y-4">
-              <ErrorRow label="Passed" value={`${latestRun.tc_passed}/${latestRun.tc_total}`} color="bg-emerald-500" />
-              <ErrorRow label="Warned" value={`${latestRun.tc_warned}/${latestRun.tc_total}`} color="bg-amber-500" />
-              <ErrorRow label="Failed" value={`${latestRun.tc_failed}/${latestRun.tc_total}`} color="bg-rose-500" />
+              <ErrorRow label="Passed" value={`${stab.passed}/${tcCount}`} color="bg-emerald-500" />
+              <ErrorRow label="Warned" value={`${stab.warned}/${tcCount}`} color="bg-amber-500" />
+              <ErrorRow label="Failed" value={`${stab.failed}/${tcCount}`} color="bg-rose-500" />
             </div>
           </div>
 
@@ -133,7 +144,7 @@ export function DashboardView() {
             </div>
             <div>
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none">Stability Grade</p>
-              <p className="text-lg font-black">{latestRun.stability_grade}</p>
+              <p className="text-lg font-black">{stab.grade}</p>
             </div>
           </div>
         </div>
@@ -167,7 +178,7 @@ export function DashboardView() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {endpointDetails.map((ep) => (
+                {endpointDetailsData.map((ep) => (
                   <EndpointRow
                     key={ep.endpoint}
                     path={ep.endpoint}

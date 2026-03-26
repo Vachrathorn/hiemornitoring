@@ -13,8 +13,12 @@ import {
   Terminal,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { systemLogs, latestRun } from '@/lib/mock-data';
+import { perfSummary, getSystemLogs } from '@/lib/data-loader';
 import { useState } from 'react';
+
+const systemLogs = getSystemLogs();
+const stab = perfSummary.stabilityScore;
+const tcCount = perfSummary.tcDetails.length;
 
 type LogLevel = 'All' | 'Error' | 'Warning' | 'Success' | 'Info';
 
@@ -170,8 +174,8 @@ export function LogsView() {
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
         <StatCard icon={Activity} label="Total Events" value={String(systemLogs.length)} badge="Latest Run" badgeDesc="Events from latest test execution" />
-        <StatCard icon={Zap} label="Avg. Response Time" value={`${Math.round(latestRun.avg_api_s * 1000)}ms`} badge="Optimal" badgeDesc="Within performance SLAs" />
-        <StatCard icon={CheckCircle2} label="Success Rate" value={`${((latestRun.tc_passed / latestRun.tc_total) * 100).toFixed(1)}%`} badge="High" badgeDesc="Exceeding quality benchmarks" />
+        <StatCard icon={Zap} label="Avg. Response Time" value={`${Math.round(perfSummary.avgApiTime)}ms`} badge="Optimal" badgeDesc="Within performance SLAs" />
+        <StatCard icon={CheckCircle2} label="Success Rate" value={`${tcCount > 0 ? ((stab.passed / tcCount) * 100).toFixed(1) : 0}%`} badge="High" badgeDesc="Exceeding quality benchmarks" />
       </div>
     </div>
   );

@@ -21,20 +21,34 @@ import {
   Cell,
   ReferenceLine,
 } from 'recharts';
-import { latestRun, historicalRuns, criticalChecks, getAvailabilityPercent, getEfficiencyScore } from '@/lib/mock-data';
+import {
+  perfSummary, analytics, getCriticalChecks,
+  getAvailabilityPercent, getEfficiencyScore, toThaiTime, getOverallStatus,
+} from '@/lib/data-loader';
 
 const TARGET_DURATION = 60; // seconds
 
-const trendData = historicalRuns.map((run, i) => ({
-  name: run.date?.slice(5) || `R${i}`,
-  value: run.total_duration_s || 0,
-  isTarget: false,
-}));
+// Build trend data from analytics.json (real historical runs)
+const trendData = analytics
+  .slice(-15) // last 15 runs
+  .map((run) => ({
+    name: new Date(run.date).toISOString().slice(5, 10), // MM-DD
+    value: Math.round(run.duration / 1000), // ms → seconds
+  }));
 
 const availability = getAvailabilityPercent();
 const efficiencyScore = getEfficiencyScore();
+const criticalChecks = getCriticalChecks();
 
 const checkIcons = [Key, Database, ShieldCheck, Share2];
+
+// Derived values from real data
+const siteUrl = perfSummary.webVitals?.url?.replace(/\/console.*/, '') || '';
+const lastRunTime = toThaiTime(perfSummary.timestamp);
+const overallStatus = getOverallStatus();
+const env = perfSummary.metadata.environment;
+const avgLatencyMs = Math.round(perfSummary.avgApiTime);
+const durations = trendData.map(d => d.value);
 
 export function OverviewView() {
   return (
@@ -48,7 +62,7 @@ export function OverviewView() {
           <h1 className="text-5xl md:text-6xl font-black tracking-tighter mt-2">HIE MONITORING</h1>
           <div className="mt-4 flex items-center gap-3">
             <span className="px-3 py-1 bg-surface-container-high rounded-full font-mono text-sm font-bold">
-              {latestRun.base_url}
+              {siteUrl}
             </span>
             <LinkIcon className="text-primary w-4 h-4" />
           </div>
@@ -56,7 +70,7 @@ export function OverviewView() {
             <p className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant/60">
               Latest Run Timestamp
             </p>
-            <p className="text-xl font-bold font-mono">{latestRun.timestamp.replace('T', ' ')}</p>
+            <p className="text-xl font-bold font-mono">{lastRunTime}</p>
             <div className="flex items-center gap-2 mt-1 text-emerald-500 font-bold text-xs">
               <RefreshCw className="w-3 h-3 animate-spin" />
               Live Sync Active
@@ -71,14 +85,14 @@ export function OverviewView() {
                 <CheckCircle2 className="w-10 h-10 text-primary fill-primary/20" />
               </div>
               <h2 className="text-5xl lg:text-7xl font-black text-primary leading-none tracking-tighter">
-                {latestRun.overall_status}
+                {overallStatus}
               </h2>
               <p className="text-sm mt-4 text-on-surface-variant font-medium max-w-sm">
-                วิเคราะห์ผลการทดสอบรอบล่าสุดเสร็จสิ้น ในสภาวะ {latestRun.environment.toUpperCase()} Environment
+                วิเคราะห์ผลการทดสอบรอบล่าสุดเสร็จสิ้น ในสภาวะ {env.toUpperCase()} Environment
               </p>
               <div className="mt-6 flex flex-wrap justify-center gap-3">
                 <StatusBadge label={`Uptime ${availability}%`} />
-                <StatusBadge label={`Latency ${Math.round(latestRun.avg_api_s * 1000)}ms`} />
+                <StatusBadge label={`Latency ${avgLatencyMs}ms`} />
               </div>
             </div>
             <div className="absolute -top-12 -right-12 w-48 h-48 bg-primary/5 blur-[60px] rounded-full" />
@@ -126,14 +140,14 @@ export function OverviewView() {
           </div>
 
           <div className="mt-12 pt-8 border-t border-slate-200 grid grid-cols-3 gap-8">
-            <MetricBox label="Fastest Run" value={`${Math.min(...historicalRuns.map(r => r.total_duration_s || 999))}s`} />
+            <MetricBox label="Fastest Run" value={`${Math.min(...durations)}s`} />
             <MetricBox
               label="Average Speed"
-              value={`${Math.round(historicalRuns.reduce((a, r) => a + (r.total_duration_s || 0), 0) / historicalRuns.length)}s`}
+              value={`${Math.round(durations.reduce((a, b) => a + b, 0) / durations.length)}s`}
             />
             <MetricBox
               label="Slowest Peak"
-              value={`${Math.max(...historicalRuns.map(r => r.total_duration_s || 0))}s`}
+              value={`${Math.max(...durations)}s`}
               isError
             />
           </div>
