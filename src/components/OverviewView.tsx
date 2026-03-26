@@ -2,12 +2,15 @@
 
 import {
   CheckCircle2,
+  AlertTriangle,
+  XCircle,
   Link as LinkIcon,
-  RefreshCw,
+  Clock,
   Key,
   Database,
   ShieldCheck,
-  Share2,
+  Globe,
+  User,
   MoreHorizontal,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -40,7 +43,7 @@ const availability = getAvailabilityPercent();
 const efficiencyScore = getEfficiencyScore();
 const criticalChecks = getCriticalChecks();
 
-const checkIcons = [Key, Database, ShieldCheck, Share2];
+// checkIcons now computed dynamically via criticalCheckIcons below
 
 // Derived values from real data
 const siteUrl = perfSummary.webVitals?.url?.replace(/\/console.*/, '') || '';
@@ -49,6 +52,40 @@ const overallStatus = getOverallStatus();
 const env = perfSummary.metadata.environment;
 const avgLatencyMs = Math.round(perfSummary.avgApiTime);
 const durations = trendData.map(d => d.value);
+
+// Web Vitals
+const webVitals = perfSummary.webVitals;
+const thresholds = perfSummary.metadata.thresholds;
+const ttfb = webVitals?.ttfb ?? 0;
+const lcp = webVitals?.lcp ?? 0;
+const ttfbGrade = ttfb <= thresholds.ttfbGoodMs ? 'Good' : ttfb <= thresholds.ttfbPoorMs ? 'Needs Improvement' : 'Poor';
+const lcpGrade = lcp <= thresholds.lcpGoodMs ? 'Good' : lcp <= thresholds.lcpPoorMs ? 'Needs Improvement' : 'Poor';
+const gradeColor = (g: string) => g === 'Good' ? 'text-emerald-600 bg-emerald-50' : g === 'Needs Improvement' ? 'text-amber-600 bg-amber-50' : 'text-rose-600 bg-rose-50';
+
+// Dynamic status styling
+const statusConfig = (() => {
+  switch (overallStatus) {
+    case 'ปกติ':
+      return { icon: CheckCircle2, color: 'text-primary', bg: 'bg-primary/10', fill: 'fill-primary/20' };
+    case 'ช้ากว่าปกติ':
+      return { icon: AlertTriangle, color: 'text-amber-500', bg: 'bg-amber-50', fill: '' };
+    case 'ผิดปกติ':
+    case 'มีปัญหา':
+    default:
+      return { icon: XCircle, color: 'text-rose-500', bg: 'bg-rose-50', fill: '' };
+  }
+})();
+
+// Map critical endpoint labels to icons
+const labelIconMap: Record<string, typeof Key> = {
+  'Auth Login': Key,
+  'Patient Search': Database,
+  'FHIR Data Sync': ShieldCheck,
+  'User Profile': User,
+};
+const criticalCheckIcons = criticalChecks.map(
+  (c) => labelIconMap[c.label] || Globe
+);
 
 export function OverviewView() {
   return (
@@ -71,9 +108,9 @@ export function OverviewView() {
               Latest Run Timestamp
             </p>
             <p className="text-xl font-bold font-mono">{lastRunTime}</p>
-            <div className="flex items-center gap-2 mt-1 text-emerald-500 font-bold text-xs">
-              <RefreshCw className="w-3 h-3 animate-spin" />
-              Live Sync Active
+            <div className="flex items-center gap-2 mt-1 text-on-surface-variant/60 font-bold text-xs">
+              <Clock className="w-3 h-3" />
+              Schedule: 09:00 / 13:00 / 17:00
             </div>
           </div>
         </div>
@@ -81,10 +118,10 @@ export function OverviewView() {
         <div className="col-span-12 lg:col-span-6">
           <div className="relative h-full overflow-hidden bg-surface-container-lowest p-1 bg-gradient-to-br from-primary/5 to-transparent rounded-xl border border-slate-100 shadow-sm">
             <div className="bg-surface-container-lowest rounded-xl p-8 lg:p-10 flex flex-col items-center justify-center text-center relative z-[1] h-full">
-              <div className="mb-4 w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center pulse-orb">
-                <CheckCircle2 className="w-10 h-10 text-primary fill-primary/20" />
+              <div className={cn('mb-4 w-16 h-16 rounded-full flex items-center justify-center pulse-orb', statusConfig.bg)}>
+                <statusConfig.icon className={cn('w-10 h-10', statusConfig.color, statusConfig.fill)} />
               </div>
-              <h2 className="text-5xl lg:text-7xl font-black text-primary leading-none tracking-tighter">
+              <h2 className={cn('text-5xl lg:text-7xl font-black leading-none tracking-tighter', statusConfig.color)}>
                 {overallStatus}
               </h2>
               <p className="text-sm mt-4 text-on-surface-variant font-medium max-w-sm">
@@ -120,7 +157,7 @@ export function OverviewView() {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={trendData}>
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#64748b' }} />
-                <YAxis hide domain={[0, 80]} />
+                <YAxis hide domain={[0, Math.ceil(Math.max(...durations, TARGET_DURATION) * 1.2)]} />
                 <Tooltip
                   cursor={{ fill: 'transparent' }}
                   formatter={(value: number) => [`${value}s`, 'Duration']}
@@ -163,10 +200,36 @@ export function OverviewView() {
             </div>
             <div className="space-y-2">
               {criticalChecks.map((check, i) => (
-                <CheckItem key={check.label} icon={checkIcons[i]} label={check.label} ok={check.ok} />
+                <CheckItem key={check.label} icon={criticalCheckIcons[i]} label={check.label} ok={check.ok} />
               ))}
             </div>
           </div>
+
+          {webVitals && (
+            <div className="bg-surface-container-low rounded-xl p-6 border border-slate-200/50 space-y-4">
+              <h3 className="text-xs font-black tracking-widest uppercase text-on-surface-variant">Web Vitals</h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] font-bold text-on-surface-variant/60 uppercase">TTFB</p>
+                    <p className="text-xl font-black">{ttfb}ms</p>
+                  </div>
+                  <span className={cn('px-2 py-0.5 rounded-full text-[9px] font-black uppercase', gradeColor(ttfbGrade))}>
+                    {ttfbGrade}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] font-bold text-on-surface-variant/60 uppercase">LCP</p>
+                    <p className="text-xl font-black">{(lcp / 1000).toFixed(1)}s</p>
+                  </div>
+                  <span className={cn('px-2 py-0.5 rounded-full text-[9px] font-black uppercase', gradeColor(lcpGrade))}>
+                    {lcpGrade}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="bg-primary p-8 rounded-xl text-on-primary">
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-70">Efficiency Score</p>
