@@ -236,12 +236,13 @@ export type RunStatus = 'normal' | 'slow' | 'failed';
 export interface TrendEntry {
   name: string;          // MM-DD
   date: string;          // full ISO date
+  runTime: string;       // HH:MM (Thai time)
   value: number;         // seconds
   status: RunStatus;
   passed: number;
   failed: number;
   total: number;
-  tooltip: string;       // short reason
+  tooltip: string;       // short reason (line 2+)
   isLatest: boolean;     // true = has detail in perf-summary
 }
 
@@ -254,6 +255,7 @@ export function getTrendData(count = 15): TrendEntry[] {
     const hasFail = run.failed > 0;
     const runIsSlow = isSlow(run.duration);
     const isLatest = run.date.slice(0, 10) === latestRunDate;
+    const runTime = toThaiTime(run.date).slice(11, 16); // HH:MM
 
     let status: RunStatus = 'normal';
     let tooltip = `✅ ผ่าน ${run.passed}/${run.total} TC — ${durationS}s`;
@@ -284,6 +286,7 @@ export function getTrendData(count = 15): TrendEntry[] {
     return {
       name: new Date(run.date).toISOString().slice(5, 10),
       date: run.date,
+      runTime,
       value: durationS,
       status,
       passed: run.passed,
