@@ -98,12 +98,15 @@ export function OverviewView() {
             </span>
             <LinkIcon className="text-primary w-4 h-4" />
           </div>
-          <div className="mt-6">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant/60">
-              Latest Run Timestamp
-            </p>
-            <p className="text-xl font-bold font-mono">{lastRunTime}</p>
-            <div className="flex items-center gap-2 mt-1 text-on-surface-variant/60 font-bold text-xs">
+          <div className="mt-6 bg-surface-container-low border border-primary/10 rounded-xl p-5 inline-block">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+              <p className="text-[10px] font-black uppercase tracking-widest text-primary">
+                Latest Run
+              </p>
+            </div>
+            <p className="text-2xl font-black font-mono tracking-tight">{lastRunTime}</p>
+            <div className="flex items-center gap-2 mt-2 text-on-surface-variant/50 font-bold text-[10px]">
               <Clock className="w-3 h-3" />
               Schedule: 09:00 / 13:00 / 17:00
             </div>
