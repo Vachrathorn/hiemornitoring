@@ -11,7 +11,6 @@ import {
   ShieldCheck,
   Globe,
   User,
-  MoreHorizontal,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -193,12 +192,7 @@ export function OverviewView() {
 
         <div className="col-span-12 lg:col-span-3 flex flex-col gap-6">
           <div className="bg-surface-container-low rounded-xl p-8 space-y-6 flex-1 border border-slate-200/50">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-black tracking-tight uppercase">Status Checks</h3>
-              <button className="p-1 hover:bg-black/5 rounded-full transition-colors">
-                <MoreHorizontal className="w-5 h-5 text-on-surface-variant" />
-              </button>
-            </div>
+            <h3 className="text-lg font-black tracking-tight uppercase mb-6">Status Checks</h3>
             <div className="space-y-2">
               {criticalChecks.map((check, i) => (
                 <CheckItem key={check.label} icon={criticalCheckIcons[i]} label={check.label} ok={check.ok} />
