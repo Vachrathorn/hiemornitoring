@@ -140,8 +140,8 @@ export function OverviewView() {
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-12 gap-4">
             <div>
               <h3 className="text-3xl font-black tracking-tight">Performance Trend</h3>
-              <p className="text-xs text-on-surface-variant font-bold uppercase tracking-widest mt-1">
-                Overall Execution Speed (s) — History Analysis
+              <p className="text-xs text-on-surface-variant font-medium mt-1">
+                แนวโน้มเวลารันทั้งหมด (วินาที) — ย้อนหลัง 15 รอบ
               </p>
             </div>
             <div className="flex flex-wrap gap-4">
@@ -177,13 +177,13 @@ export function OverviewView() {
           </div>
 
           <div className="mt-12 pt-8 border-t border-slate-200 grid grid-cols-3 gap-8">
-            <MetricBox label="Fastest Run" value={`${Math.min(...durations)}s`} />
+            <MetricBox label="เร็วที่สุด" value={`${Math.min(...durations)}s`} />
             <MetricBox
-              label="Average Speed"
+              label="เฉลี่ย"
               value={`${Math.round(durations.reduce((a, b) => a + b, 0) / durations.length)}s`}
             />
             <MetricBox
-              label="Slowest Peak"
+              label="ช้าที่สุด"
               value={`${Math.max(...durations)}s`}
               isError
             />
@@ -192,7 +192,10 @@ export function OverviewView() {
 
         <div className="col-span-12 lg:col-span-3 flex flex-col gap-6">
           <div className="bg-surface-container-low rounded-xl p-8 space-y-6 flex-1 border border-slate-200/50">
-            <h3 className="text-lg font-black tracking-tight uppercase mb-6">Status Checks</h3>
+            <div className="mb-6">
+              <h3 className="text-lg font-black tracking-tight uppercase">API Health</h3>
+              <p className="text-[10px] text-on-surface-variant/60 font-medium mt-1">ตรวจสอบ API หลักของระบบว่าตอบกลับปกติ</p>
+            </div>
             <div className="space-y-2">
               {criticalChecks.map((check, i) => (
                 <CheckItem key={check.label} icon={criticalCheckIcons[i]} label={check.label} ok={check.ok} />
@@ -202,11 +205,15 @@ export function OverviewView() {
 
           {webVitals && (
             <div className="bg-surface-container-low rounded-xl p-6 border border-slate-200/50 space-y-4">
-              <h3 className="text-xs font-black tracking-widest uppercase text-on-surface-variant">Web Vitals</h3>
+              <div>
+                <h3 className="text-xs font-black tracking-widest uppercase text-on-surface-variant">Web Vitals</h3>
+                <p className="text-[10px] text-on-surface-variant/60 font-medium mt-1">ความเร็วในการโหลดหน้าเว็บ</p>
+              </div>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-[10px] font-bold text-on-surface-variant/60 uppercase">TTFB</p>
+                    <p className="text-[9px] text-on-surface-variant/50 font-medium">เวลาตอบกลับแรก</p>
                     <p className="text-xl font-black">{ttfb}ms</p>
                   </div>
                   <span className={cn('px-2 py-0.5 rounded-full text-[9px] font-black uppercase', gradeColor(ttfbGrade))}>
@@ -216,6 +223,7 @@ export function OverviewView() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-[10px] font-bold text-on-surface-variant/60 uppercase">LCP</p>
+                    <p className="text-[9px] text-on-surface-variant/50 font-medium">เวลาโหลดเนื้อหาหลัก</p>
                     <p className="text-xl font-black">{(lcp / 1000).toFixed(1)}s</p>
                   </div>
                   <span className={cn('px-2 py-0.5 rounded-full text-[9px] font-black uppercase', gradeColor(lcpGrade))}>
@@ -228,6 +236,7 @@ export function OverviewView() {
 
           <div className="bg-primary p-8 rounded-xl text-on-primary">
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-70">Efficiency Score</p>
+            <p className="text-[10px] font-medium opacity-60 mt-0.5">คะแนนประสิทธิภาพรวม (ผลทดสอบ + ความเร็ว + API)</p>
             <p className="text-4xl font-black mt-1">{efficiencyScore}</p>
             <div className="mt-4 h-1.5 w-full bg-white/20 rounded-full overflow-hidden">
               <div className="h-full bg-white" style={{ width: `${efficiencyScore}%` }} />
