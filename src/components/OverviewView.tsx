@@ -278,9 +278,13 @@ function CustomTooltip({ active, payload, label }: { active?: boolean; payload?:
 
   return (
     <div className={cn('bg-white rounded-xl shadow-lg p-4 border-l-4 min-w-[180px]', borderColor)}>
-      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Date: {label}</p>
+      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{label}</p>
       <p className="text-lg font-black">{data.value}s</p>
-      <p className="text-xs font-bold mt-2 leading-relaxed">{data.tooltip}</p>
+      <div className="mt-2 space-y-0.5">
+        {data.tooltip.split('\n').map((line, i) => (
+          <p key={i} className="text-xs font-bold leading-relaxed">{line}</p>
+        ))}
+      </div>
     </div>
   );
 }

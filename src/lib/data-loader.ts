@@ -235,12 +235,14 @@ export type RunStatus = 'normal' | 'slow' | 'failed';
 
 export interface TrendEntry {
   name: string;          // MM-DD
+  date: string;          // full ISO date
   value: number;         // seconds
   status: RunStatus;
   passed: number;
   failed: number;
   total: number;
   tooltip: string;       // short reason
+  isLatest: boolean;     // true = has detail in perf-summary
 }
 
 /** Build trend data with status + tooltip for chart */
@@ -254,37 +256,41 @@ export function getTrendData(count = 15): TrendEntry[] {
     const isLatest = run.date.slice(0, 10) === latestRunDate;
 
     let status: RunStatus = 'normal';
-    let tooltip = `${durationS}s — ผ่าน ${run.passed}/${run.total}`;
+    let tooltip = `✅ ผ่าน ${run.passed}/${run.total} TC — ${durationS}s`;
 
     if (hasFail) {
       status = 'failed';
-      tooltip = `❌ ไม่ผ่าน ${run.failed}/${run.total} TC`;
-      // Latest run: add detail from perf-summary
       if (isLatest) {
+        // Latest run: show specific TC names
         const failedTCs = perfSummary.tcDetails
           .filter(tc => tc.status === 'FAIL')
-          .map(tc => tc.id)
-          .join(', ');
-        if (failedTCs) tooltip += ` (${failedTCs})`;
+          .map(tc => `${tc.id} : FAIL`);
+        tooltip = failedTCs.length > 0
+          ? `❌ ${failedTCs.join('\n❌ ')}`
+          : `❌ FAILED ${run.failed}/${run.total} TC`;
+      } else {
+        tooltip = `❌ FAILED ${run.failed}/${run.total} TC`;
       }
     } else if (runIsSlow) {
       status = 'slow';
-      tooltip = `⚠️ API SLOW (${durationS}s)`;
-      // Latest run: add slowest step
       if (isLatest && perfSummary.longestSteps.length > 0) {
         const top = perfSummary.longestSteps[0];
-        tooltip += ` — ${top.action} ${(top.duration / 1000).toFixed(1)}s`;
+        tooltip = `⚠️ SLOW ${durationS}s — ${top.action} ${(top.duration / 1000).toFixed(1)}s`;
+      } else {
+        tooltip = `⚠️ SLOW ${durationS}s`;
       }
     }
 
     return {
       name: new Date(run.date).toISOString().slice(5, 10),
+      date: run.date,
       value: durationS,
       status,
       passed: run.passed,
       failed: run.failed,
       total: run.total,
       tooltip,
+      isLatest,
     };
   });
 }
