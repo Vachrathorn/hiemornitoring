@@ -24,7 +24,7 @@ import {
   ReferenceLine,
 } from 'recharts';
 import {
-  perfSummary, getCriticalChecks,
+  perfSummary, analytics, getCriticalChecks,
   getAvailabilityPercent, getEfficiencyScore, toThaiTime, getOverallStatus,
   getTrendData, slowThresholdS, type TrendEntry,
 } from '@/lib/data-loader';
@@ -47,6 +47,7 @@ const overallStatus = getOverallStatus();
 const env = perfSummary.metadata.environment;
 const avgLatencyMs = Math.round(perfSummary.avgApiTime);
 const durations = trendData.map(d => d.value);
+const totalRuns = analytics.length;
 
 // Web Vitals
 const webVitals = perfSummary.webVitals;
@@ -125,8 +126,8 @@ export function OverviewView() {
                 วิเคราะห์ผลการทดสอบรอบล่าสุดเสร็จสิ้น ในสภาวะ {env.toUpperCase()} Environment
               </p>
               <div className="mt-6 flex flex-wrap justify-center gap-3">
-                <StatusBadge label={`Uptime ${availability}%`} />
-                <StatusBadge label={`Latency ${avgLatencyMs}ms`} />
+                <StatusBadge label={`Uptime ${availability}%`} source="all" count={totalRuns} />
+                <StatusBadge label={`Latency ${avgLatencyMs}ms`} source="latest" />
               </div>
             </div>
             <div className="absolute -top-12 -right-12 w-48 h-48 bg-primary/5 blur-[60px] rounded-full" />
@@ -139,9 +140,12 @@ export function OverviewView() {
         <div className="col-span-12 lg:col-span-9 bg-surface-container-low rounded-xl p-8 lg:p-12 flex flex-col border border-primary/5 shadow-md">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-12 gap-4">
             <div>
-              <h3 className="text-3xl font-black tracking-tight">Performance Trend</h3>
+              <div className="flex items-center gap-3">
+                <h3 className="text-3xl font-black tracking-tight">Performance Trend</h3>
+                <SourceBadge type="history" count={trendData.length} />
+              </div>
               <p className="text-xs text-on-surface-variant font-medium mt-1">
-                แนวโน้มเวลารันทั้งหมด (วินาที) — ย้อนหลัง 15 รอบ
+                แนวโน้มเวลารันทั้งหมด (วินาที)
               </p>
             </div>
             <div className="flex flex-wrap gap-4">
@@ -193,8 +197,11 @@ export function OverviewView() {
         <div className="col-span-12 lg:col-span-3 flex flex-col gap-6">
           <div className="bg-surface-container-low rounded-xl p-8 space-y-6 flex-1 border border-slate-200/50">
             <div className="mb-6">
-              <h3 className="text-lg font-black tracking-tight uppercase">API Health</h3>
-              <p className="text-[10px] text-on-surface-variant/60 font-medium mt-1">ตรวจสอบ API หลักว่าตอบกลับปกติ (รอบล่าสุด)</p>
+              <div className="flex items-center gap-2">
+                <h3 className="text-lg font-black tracking-tight uppercase">API Health</h3>
+                <SourceBadge type="latest" />
+              </div>
+              <p className="text-[10px] text-on-surface-variant/60 font-medium mt-1">ตรวจสอบ API หลักว่าตอบกลับปกติ</p>
             </div>
             <div className="space-y-2">
               {criticalChecks.map((check, i) => (
@@ -206,8 +213,11 @@ export function OverviewView() {
           {webVitals && (
             <div className="bg-surface-container-low rounded-xl p-6 border border-slate-200/50 space-y-4">
               <div>
-                <h3 className="text-xs font-black tracking-widest uppercase text-on-surface-variant">Web Vitals</h3>
-                <p className="text-[10px] text-on-surface-variant/60 font-medium mt-1">ความเร็วโหลดหน้าเว็บ (รอบล่าสุด)</p>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-xs font-black tracking-widest uppercase text-on-surface-variant">Web Vitals</h3>
+                  <SourceBadge type="latest" />
+                </div>
+                <p className="text-[10px] text-on-surface-variant/60 font-medium mt-1">ความเร็วโหลดหน้าเว็บ</p>
               </div>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -235,8 +245,11 @@ export function OverviewView() {
           )}
 
           <div className="bg-primary p-8 rounded-xl text-on-primary">
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-70">Efficiency Score</p>
-            <p className="text-[10px] font-medium opacity-60 mt-0.5">คะแนนประสิทธิภาพรวม (ผลทดสอบ + ความเร็ว + API)</p>
+            <div className="flex items-center gap-2">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-70">Efficiency Score</p>
+              <span className="px-2 py-0.5 rounded-full text-[8px] font-bold bg-white/15 text-white/80">รอบล่าสุด</span>
+            </div>
+            <p className="text-[10px] font-medium opacity-60 mt-0.5">คะแนนรวม (ผลทดสอบ + ความเร็ว + API)</p>
             <p className="text-4xl font-black mt-1">{efficiencyScore}</p>
             <div className="mt-4 h-1.5 w-full bg-white/20 rounded-full overflow-hidden">
               <div className="h-full bg-white" style={{ width: `${efficiencyScore}%` }} />
@@ -248,11 +261,14 @@ export function OverviewView() {
   );
 }
 
-function StatusBadge({ label }: { label: string }) {
+function StatusBadge({ label, source, count }: { label: string; source?: SourceType; count?: number }) {
+  const sourceLabel = source === 'all' ? `ทุกรัน (${count})` : source === 'latest' ? 'รอบล่าสุด' : '';
   return (
-    <div className="px-6 py-2 bg-surface-container-low rounded-full flex items-center gap-2">
-      <div className="w-2 h-2 rounded-full bg-primary" />
+    <div className="px-5 py-2 bg-surface-container-low rounded-full flex flex-col items-center gap-0.5" title={sourceLabel}>
       <span className="text-[10px] font-bold uppercase tracking-widest">{label}</span>
+      {sourceLabel && (
+        <span className="text-[8px] font-medium text-on-surface-variant/40">{sourceLabel}</span>
+      )}
     </div>
   );
 }
@@ -293,6 +309,22 @@ function CustomTooltip({ active, payload, label }: { active?: boolean; payload?:
         ))}
       </div>
     </div>
+  );
+}
+
+type SourceType = 'latest' | 'history' | 'all';
+
+function SourceBadge({ type, count }: { type: SourceType; count?: number }) {
+  const config = {
+    latest: { label: 'รอบล่าสุด', color: 'bg-emerald-50 text-emerald-600' },
+    history: { label: `${count || 15} รอบล่าสุด`, color: 'bg-blue-50 text-blue-600' },
+    all: { label: `ทุกรัน (${count || 0} รอบ)`, color: 'bg-violet-50 text-violet-600' },
+  };
+  const c = config[type];
+  return (
+    <span className={cn('inline-flex px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wide', c.color)}>
+      {c.label}
+    </span>
   );
 }
 
