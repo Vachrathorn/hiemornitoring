@@ -31,12 +31,18 @@ const trendPct = prevRun && prevRun.total > 0
   ? `${((totalApiCalls - (prevRun.total || 0)) / (prevRun.total || 1) * 100).toFixed(1)}%`
   : 'N/A';
 
-// Throughput data from endpoint breakdown
-const throughputData = perfSummary.endpointBreakdown.map((ep, i) => ({
-  name: i,
-  value: ep.callCount,
-  isPeak: ep.slowCount > 0,
-}));
+// Throughput data from endpoint breakdown — include endpoint name for tooltip
+const throughputData = perfSummary.endpointBreakdown.map((ep) => {
+  const parts = ep.endpoint.split(' ');
+  const path = parts.slice(1).join(' ') || ep.endpoint;
+  return {
+    name: path.length > 30 ? '...' + path.slice(-27) : path,
+    value: ep.callCount,
+    isPeak: ep.slowCount > 0,
+    slowCount: ep.slowCount,
+    avgMs: Math.round(ep.avgDuration),
+  };
+});
 
 const availabilityPct = getAvailabilityPercent().toFixed(1);
 
@@ -96,11 +102,14 @@ export function DashboardView() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Latency Overview */}
         <div className="lg:col-span-8 bg-surface-container-low rounded-xl p-8 space-y-8">
-          <div className="flex items-center justify-between">
-            <h3 className="text-2xl font-bold tracking-tight">Latency Overview</h3>
-            <span className="px-3 py-1 bg-surface-container-highest rounded-full text-[10px] font-black uppercase tracking-widest">
-              Last 60 mins
-            </span>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <h3 className="text-2xl font-bold tracking-tight">Latency Overview</h3>
+              <span className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-black uppercase tracking-widest">
+                รอบล่าสุด
+              </span>
+            </div>
+            <p className="text-sm text-slate-500">ความเร็วในการตอบสนองของ API จากการรันล่าสุด — P50 คือค่ากลาง, P95/P99 คือกรณีที่ช้าที่สุด</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -117,7 +126,21 @@ export function DashboardView() {
             <div className="h-48 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={throughputData}>
-                  <Tooltip formatter={(v: number) => [`${Math.round(v)} calls`, 'Count']} />
+                  <Tooltip
+                    content={({ active, payload }) => {
+                      if (!active || !payload?.[0]) return null;
+                      const d = payload[0].payload as typeof throughputData[0];
+                      return (
+                        <div className="bg-white rounded-lg shadow-lg border border-slate-200 p-3 text-xs space-y-1">
+                          <p className="font-bold text-slate-800 truncate max-w-[240px]">{d.name}</p>
+                          <p className="text-slate-600">{d.value} calls &middot; avg {d.avgMs} ms</p>
+                          {d.slowCount > 0 && (
+                            <p className="text-rose-600 font-semibold">{d.slowCount} slow request{d.slowCount > 1 ? 's' : ''}</p>
+                          )}
+                        </div>
+                      );
+                    }}
+                  />
                   <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                     {throughputData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.isPeak ? '#10b981' : '#cbd5e1'} fillOpacity={entry.isPeak ? 1 : 0.5} />
@@ -264,7 +287,8 @@ function EndpointRow({ path, method, latency, trend, trendType, status, statusCo
   path: string; method: string; latency: string; trend: string; trendType: 'up' | 'down' | 'stable'; status: string; statusColor: string;
 }) {
   const TrendIcon = trendType === 'up' ? ArrowUpRight : trendType === 'down' ? ArrowDownRight : Minus;
-  const trendColor = trendType === 'up' ? 'text-emerald-500' : trendType === 'down' ? 'text-rose-500' : 'text-slate-400';
+  // +% = red (slower/worse), -% = green (faster/better)
+  const trendColor = trendType === 'up' ? 'text-rose-500' : trendType === 'down' ? 'text-emerald-500' : 'text-slate-400';
 
   const statusBg: Record<string, string> = {
     amber: 'bg-amber-50 text-amber-700',
