@@ -6,7 +6,6 @@ import {
   Filter,
   ChevronLeft,
   ChevronRight,
-  MoreVertical,
   CheckCircle2,
   Activity,
   Zap,
@@ -128,7 +127,7 @@ export function LogsView() {
                 <th className="pb-4">Level</th>
                 <th className="pb-4">Source / Service</th>
                 <th className="pb-4">Message</th>
-                <th className="pb-4 text-right pr-4">Action</th>
+                <th className="pb-4 pr-4" />
               </tr>
             </thead>
             <tbody className="text-sm">
@@ -153,11 +152,7 @@ export function LogsView() {
                   </td>
                   <td className="py-5 font-bold">{log.source}</td>
                   <td className="py-5 font-mono text-on-surface-variant max-w-md truncate">{log.message}</td>
-                  <td className="py-5 text-right pr-6 rounded-r-2xl">
-                    <button className="p-2 hover:bg-slate-100 rounded-full transition-colors">
-                      <MoreVertical className="w-5 h-5 text-slate-400" />
-                    </button>
-                  </td>
+                  <td className="py-5 pr-6 rounded-r-2xl" />
                 </tr>
               ))}
             </tbody>
@@ -173,17 +168,22 @@ export function LogsView() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
-        <StatCard icon={Activity} label="Total Events" value={String(systemLogs.length)} badge="Latest Run" badgeDesc="Events from latest test execution" />
-        <StatCard icon={Zap} label="Avg. Response Time" value={`${Math.round(perfSummary.avgApiTime)}ms`} badge="Optimal" badgeDesc="Within performance SLAs" />
-        <StatCard icon={CheckCircle2} label="Success Rate" value={`${tcCount > 0 ? ((stab.passed / tcCount) * 100).toFixed(1) : 0}%`} badge="High" badgeDesc="Exceeding quality benchmarks" />
+        <StatCard icon={Activity} label="Total Events" value={String(systemLogs.length)} badge="Latest Run" badgeColor="emerald" badgeDesc="Events from latest test execution" />
+        <StatCard icon={Zap} label="Avg. Response Time" value={`${Math.round(perfSummary.avgApiTime)}ms`} badge={perfSummary.avgApiTime <= 500 ? 'Optimal' : perfSummary.avgApiTime <= 1000 ? 'Acceptable' : 'Slow'} badgeColor={perfSummary.avgApiTime <= 500 ? 'emerald' : perfSummary.avgApiTime <= 1000 ? 'amber' : 'rose'} badgeDesc={`ค่าเฉลี่ย API response time จากรอบล่าสุด`} />
+        <StatCard icon={CheckCircle2} label="Success Rate" value={`${tcCount > 0 ? ((stab.passed / tcCount) * 100).toFixed(1) : 0}%`} badge={stab.failed > 0 ? 'Failed' : stab.warned > 0 ? 'Warned' : 'Passed'} badgeColor={stab.failed > 0 ? 'rose' : stab.warned > 0 ? 'amber' : 'emerald'} badgeDesc={`${stab.passed}/${tcCount} TC ผ่าน จากรอบล่าสุด`} />
       </div>
     </div>
   );
 }
 
-function StatCard({ icon: Icon, label, value, badge, badgeDesc }: {
-  icon: typeof Activity; label: string; value: string; badge: string; badgeDesc: string;
+function StatCard({ icon: Icon, label, value, badge, badgeColor = 'emerald', badgeDesc }: {
+  icon: typeof Activity; label: string; value: string; badge: string; badgeColor?: string; badgeDesc: string;
 }) {
+  const colorMap: Record<string, string> = {
+    emerald: 'bg-emerald-100 text-emerald-700',
+    amber: 'bg-amber-100 text-amber-700',
+    rose: 'bg-rose-100 text-rose-700',
+  };
   return (
     <div className="bg-white p-8 rounded-xl shadow-sm space-y-4">
       <div className="flex items-center gap-4">
@@ -196,7 +196,7 @@ function StatCard({ icon: Icon, label, value, badge, badgeDesc }: {
         </div>
       </div>
       <div className="flex items-center gap-2">
-        <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded uppercase tracking-wider">
+        <span className={`px-2 py-0.5 text-[10px] font-bold rounded uppercase tracking-wider ${colorMap[badgeColor] || colorMap.emerald}`}>
           {badge}
         </span>
         <span className="text-xs text-slate-400 font-medium">{badgeDesc}</span>

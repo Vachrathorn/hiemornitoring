@@ -5,7 +5,6 @@ import {
   Filter,
   ChevronLeft,
   ChevronRight,
-  MoreVertical,
   CheckCircle2,
   Timer,
   Key,
@@ -153,11 +152,7 @@ export function TestCasesView() {
                     <td className="py-6 text-sm font-medium text-slate-500">
                       {lastRunTime.slice(0, 16)}
                     </td>
-                    <td className="py-6 text-right">
-                      <button className="text-slate-400 hover:text-slate-900 transition-colors">
-                        <MoreVertical className="w-5 h-5" />
-                      </button>
-                    </td>
+                    <td className="py-6" />
                   </tr>
                 );
               })}
