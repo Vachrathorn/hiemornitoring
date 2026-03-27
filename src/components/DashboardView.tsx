@@ -204,6 +204,10 @@ export function DashboardView() {
               <tbody className="divide-y divide-slate-50">
                 {endpointDetailsData.map((ep) => {
                   const trend = getEndpointTrend(ep.avg_ms, ep.slow);
+                  // Threshold based on system avg (905ms): Critical > 2x avg, Warning > 1x avg
+                  const avgApi = perfSummary.avgApiTime || 905;
+                  const isCritical = ep.avg_ms > avgApi * 2;
+                  const isWarning = ep.avg_ms > avgApi;
                   return (
                     <EndpointRow
                       key={ep.endpoint}
@@ -212,8 +216,8 @@ export function DashboardView() {
                       latency={`${ep.avg_ms} ms`}
                       trend={trend.text}
                       trendType={trend.type}
-                      status={ep.avg_ms > 300 ? 'Critical' : ep.avg_ms > 150 ? 'Warning' : 'Optimal'}
-                      statusColor={ep.avg_ms > 300 ? 'rose' : ep.avg_ms > 150 ? 'amber' : 'emerald'}
+                      status={isCritical ? 'Critical' : isWarning ? 'Warning' : 'Optimal'}
+                      statusColor={isCritical ? 'rose' : isWarning ? 'amber' : 'emerald'}
                     />
                   );
                 })}
