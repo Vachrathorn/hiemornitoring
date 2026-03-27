@@ -49,9 +49,10 @@ const availabilityPct = getAvailabilityPercent().toFixed(1);
 // Max API time from endpoint breakdown (for progress bars)
 const maxApiMs = Math.max(...perfSummary.endpointBreakdown.map(e => e.maxDuration), 1);
 
-// Error rate based on HTTP status codes from API calls
-const successRate = totalApiCalls > 0 ? ((totalApiCalls - stab.failed) / totalApiCalls * 100) : 100;
-const errorRate = totalApiCalls > 0 ? (100 - successRate).toFixed(2) : '0.00';
+// Test result rate (real data from TC results)
+const passRate = tcCount > 0 ? ((stab.passed / tcCount) * 100).toFixed(1) : '100.0';
+const warnRate = tcCount > 0 ? ((stab.warned / tcCount) * 100).toFixed(1) : '0.0';
+const failRate = tcCount > 0 ? ((stab.failed / tcCount) * 100).toFixed(1) : '0.0';
 
 // Endpoint trend: compare avg latency vs threshold to determine trend direction
 function getEndpointTrend(avgMs: number, slowCount: number): { text: string; type: 'up' | 'down' | 'stable' } {
@@ -80,12 +81,12 @@ export function DashboardView() {
             <h2 className="text-7xl md:text-[5rem] font-black leading-none tracking-tighter">{availabilityPct}%</h2>
             <p className="text-lg font-medium opacity-90 max-w-md">
               Global API Health is {overallStatus === 'ปกติ' ? 'optimal' : 'degraded'}.
-              System processed {totalApiCalls.toLocaleString()} requests in the last 24 hours.
+              System processed {totalApiCalls.toLocaleString()} API calls in the latest run.
             </p>
           </div>
 
           <div className="bg-white/10 backdrop-blur-md rounded-lg p-6 flex flex-col gap-1 min-w-[240px]">
-            <span className="text-xs font-bold uppercase tracking-widest opacity-70">Total Requests Today</span>
+            <span className="text-xs font-bold uppercase tracking-widest opacity-70">Total API Calls (Latest)</span>
             <span className="text-3xl font-black tracking-tight">{totalApiCalls.toLocaleString()}</span>
             <div className="flex items-center gap-2 text-emerald-300 text-sm font-bold mt-2">
               <TrendingUp className="w-4 h-4" />
@@ -155,21 +156,24 @@ export function DashboardView() {
         {/* Error Rate Breakdown */}
         <div className="lg:col-span-4 flex flex-col gap-8">
           <div className="bg-surface-container-low rounded-xl p-8 flex-grow space-y-6">
-            <h3 className="text-xl font-bold tracking-tight">Error Rate</h3>
+            <h3 className="text-xl font-bold tracking-tight">Test Results</h3>
             <div className="flex items-center justify-center py-6">
               <div className="relative w-40 h-40 rounded-full border-[12px] border-slate-100 flex items-center justify-center">
-                <div className="absolute inset-0 rounded-full border-[12px] border-primary border-t-transparent border-l-transparent rotate-45" />
+                <div
+                  className="absolute inset-0 rounded-full border-[12px] border-primary border-t-transparent border-l-transparent"
+                  style={{ transform: `rotate(${tcCount > 0 ? (stab.passed / tcCount) * 360 : 0}deg)` }}
+                />
                 <div className="text-center">
-                  <span className="block text-3xl font-black">{errorRate}%</span>
-                  <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Global Error</span>
+                  <span className="block text-3xl font-black">{passRate}%</span>
+                  <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Pass Rate</span>
                 </div>
               </div>
             </div>
 
             <div className="space-y-4">
-              <ErrorRow label="2xx Success" value={`${(100 - parseFloat(errorRate)).toFixed(2)}%`} color="bg-emerald-500" />
-              <ErrorRow label="4xx Client Error" value={`${(parseFloat(errorRate) * 0.75).toFixed(2)}%`} color="bg-amber-500" />
-              <ErrorRow label="5xx Server Error" value={`${(parseFloat(errorRate) * 0.25).toFixed(2)}%`} color="bg-rose-500" />
+              <ErrorRow label="Passed" value={`${stab.passed}/${tcCount}`} color="bg-emerald-500" />
+              <ErrorRow label="Warned" value={`${stab.warned}/${tcCount}`} color="bg-amber-500" />
+              <ErrorRow label="Failed" value={`${stab.failed}/${tcCount}`} color="bg-rose-500" />
             </div>
           </div>
 
@@ -178,20 +182,8 @@ export function DashboardView() {
               <TrendingUp className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none">Next Test Execution</p>
-              <p className="text-lg font-black">
-                {(() => {
-                  const now = new Date();
-                  const thai = new Date(now.getTime() + 7 * 60 * 60 * 1000);
-                  const h = thai.getUTCHours();
-                  const m = thai.getUTCMinutes();
-                  const slots = [9, 13, 17];
-                  const next = slots.find(s => s > h || (s === h && m < 0)) || slots[0];
-                  const diffH = ((next > h ? next : next + 24) - h - 1 + 24) % 24;
-                  const diffM = 60 - m;
-                  return `${String(diffH).padStart(2, '0')}:${String(diffM).padStart(2, '0')}:00`;
-                })()}
-              </p>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none">Test Schedule</p>
+              <p className="text-lg font-black">09:00 / 13:00 / 17:00</p>
             </div>
           </div>
         </div>
