@@ -390,5 +390,13 @@
     "duration": 72569.21900000001,
     "botCount": 1,
     "total": 5
+  },
+  {
+    "date": "2026-03-27T16:26:04.019Z",
+    "passed": 5,
+    "failed": 0,
+    "duration": 59335.91,
+    "botCount": 1,
+    "total": 5
   }
 ]
