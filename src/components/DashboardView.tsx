@@ -105,14 +105,14 @@ export function DashboardView() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <LatencyCard label="P50 (Median)" value={Math.round(perfSummary.p50ApiTime)} color="emerald" progress={Math.min((perfSummary.p50ApiTime / maxApiMs) * 100, 100)} />
-            <LatencyCard label="P90" value={Math.round(perfSummary.p95ApiTime)} color="amber" progress={Math.min((perfSummary.p95ApiTime / maxApiMs) * 100, 100)} />
+            <LatencyCard label="P95" value={Math.round(perfSummary.p95ApiTime)} color="amber" progress={Math.min((perfSummary.p95ApiTime / maxApiMs) * 100, 100)} />
             <LatencyCard label="P99 (Critical)" value={Math.round(perfSummary.p99ApiTime)} color="rose" progress={Math.min((perfSummary.p99ApiTime / maxApiMs) * 100, 100)} />
           </div>
 
           <div className="space-y-4 pt-4">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Throughput (RPM)</span>
-              <span className="text-xs font-medium text-emerald-600">Peak: {Math.round(Math.max(...throughputData.map(d => d.value))).toLocaleString()} RPM</span>
+              <span className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">API Calls per Endpoint</span>
+              <span className="text-xs font-medium text-emerald-600">Max: {Math.round(Math.max(...throughputData.map(d => d.value)))} calls</span>
             </div>
             <div className="h-48 w-full">
               <ResponsiveContainer width="100%" height="100%">
