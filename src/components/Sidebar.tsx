@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { ViewType } from '@/lib/types';
+import { getAvailabilityPercent } from '@/lib/data-loader';
 
 interface SidebarProps {
   currentView: ViewType;
@@ -23,6 +24,8 @@ const navItems: { id: ViewType; label: string; icon: typeof MonitorDot }[] = [
 ];
 
 export function Sidebar({ currentView, onViewChange }: SidebarProps) {
+  const uptime = getAvailabilityPercent();
+  const isHealthy = uptime >= 90;
   return (
     <>
       {/* Desktop Sidebar */}
@@ -62,9 +65,9 @@ export function Sidebar({ currentView, onViewChange }: SidebarProps) {
         </nav>
 
         <div className="mt-auto px-4">
-          <div className="p-4 bg-emerald-50 rounded-2xl">
-            <p className="text-[10px] font-bold text-primary uppercase tracking-widest mb-1">System Health</p>
-            <p className="text-sm font-black text-slate-900">99.98% Uptime</p>
+          <div className={cn('p-4 rounded-2xl', isHealthy ? 'bg-emerald-50' : 'bg-amber-50')}>
+            <p className={cn('text-[10px] font-bold uppercase tracking-widest mb-1', isHealthy ? 'text-primary' : 'text-amber-700')}>System Health</p>
+            <p className="text-sm font-black text-slate-900">{uptime}% Uptime</p>
           </div>
         </div>
       </aside>
